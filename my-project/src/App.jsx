@@ -9,6 +9,7 @@ import TodoList from './TodoList.jsx'
 import Button from './button.jsx'
 import Footer from './Footer.jsx'
 
+
 function App() {
 
 
@@ -23,15 +24,15 @@ function App() {
         <div className="p-2">
           <Button />
         </div>
-        <div className="p-2">
+        {/* <div className="p-2">
           <Button />
         </div>
         <div className="p-2">
           <Button />
-        </div>
-        <div className="p-2">
+        </div> */}
+        {/* <div className="p-2">
           <Footer />
-        </div>
+        </div> */}
 
       </div>
     </div>
