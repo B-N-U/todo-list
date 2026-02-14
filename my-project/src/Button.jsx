@@ -64,10 +64,10 @@ const Button = () => {
     function toggleTodo(id) {
         const newTodos = todos.map((t) => {
             if (t.id === id) {
-                // هنا بنغير حالة المهمة اللي اخترناها بس
+               
                 return { ...t, isCompleted: !t.isCompleted };
             }
-            // هنا بنقوله "سيب باقي المهام زي ما هي"
+          
             return t;
         });
         setTodos(newTodos);
