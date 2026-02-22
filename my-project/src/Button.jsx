@@ -4,32 +4,40 @@ import { VscCheck } from "react-icons/vsc";
 import { AiFillDelete } from "react-icons/ai";
 import { AiFillEdit } from "react-icons/ai";
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from 'react';
-const iniTodos = [
-    {
-        id: uuidv4(),
-        title: "عنوان المهمة",
-        detials: "هذه المهمة عبارة عن",
-        isCompleted: false,
-    },
-    {
-        id: uuidv4(),
-        title: "عنوان المهمة",
-        detials: "هذه المهمة عبارة عن",
-        isCompleted: false,
-    },
-    {
-        id: uuidv4(),
-        title: "عنوان المهمة",
-        detials: "هذه المهمة عبارة عن",
-        isCompleted: false,
-    }
-]
+import { useState, useContext, useEffect } from 'react';
+import { TodoContext } from './TodoContext'
+
 
 const Button = () => {
-
-    const [todos, setTodos] = useState(iniTodos);
+    const { todos, setTodos, filterType } = useContext(TodoContext);
+   
     const [taskTitle, setTaskTitle] = useState("");
+    useEffect(() => {
+        const storageTodos = localStorage.getItem("todos");
+        if (storageTodos) {
+            setTodos(JSON.parse(storageTodos));
+        }
+    }, [setTodos]);
+
+
+    function handleEditClick(id) {
+        const newTitle = prompt("اكتب العنوان الجديد للمهمة:");
+        if (newTitle) {
+            const updatedTodos = todos.map((t) => {
+                if (t.id === id) {
+                    return { ...t, title: newTitle };
+                }
+                return t;
+            });
+            setTodos(updatedTodos);
+            localStorage.setItem("todos", JSON.stringify(updatedTodos));
+        }
+    }
+    function handleDeleteClick(id) {
+        const updatedTodos = todos.filter((t) => t.id !== id);
+        setTodos(updatedTodos);
+        localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    }
     function handleAddClick() {
         const newTodo = {
             id: uuidv4(),
@@ -37,14 +45,21 @@ const Button = () => {
             detials: "",
             isCompleted: false
         };
-        setTodos([...todos, newTodo]);
+        const updatedTodos = [...todos, newTodo];
+        setTodos(updatedTodos);
+        localStorage.setItem("todos", JSON.stringify(updatedTodos));
         setTaskTitle("");
     }
+    let todosToBeRendered = todos;
 
-    const todoJsx = todos.map((t) => {
+    if (filterType === "completed") {
+        todosToBeRendered = todos.filter((t) => t.isCompleted === true);
+    } else if (filterType === "non-completed") {
+        todosToBeRendered = todos.filter((t) => t.isCompleted === false);
+    }
 
+    const todoJsx = todosToBeRendered.map((t) => {
         return (
-
             <div key={t.id} className="bg-[#1e3a8a] text-white p-4 rounded-lg flex flex-row-reverse justify-between transition-transform hover:scale-105 items-center shadow-stone-600 mb-4">
                 <div className="text-right">
 
@@ -53,24 +68,29 @@ const Button = () => {
                 </div>
 
                 <div className="flex gap-2">
-                    <button className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 cursor-pointer" onClick={() => toggleTodo(t.id)} ><VscCheck /></button>
-                    <button className="w-9 h-9 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 cursor-pointer"><AiFillEdit /></button>
-                    <button className="w-9 h-9 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 cursor-pointer"><AiFillDelete /></button>
+                    <button className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 cursor-pointer" onClick={() => toggleTodo(t.id)}  ><VscCheck /></button>
+                    <button className="w-9 h-9 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 cursor-pointer" onClick={() => handleEditClick(t.id)}
+                    > <AiFillEdit /></button>
+                    <button className="w-9 h-9 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 cursor-pointer" onClick={() => {
+                        if (window.confirm("هل أنت متأكد من حذف هذه المهمة؟")) {
+                            handleDeleteClick(t.id);
+                        }
+                    }} ><AiFillDelete /></button>
                 </div>
             </div>
-        );
+        
+    );
     });
 
     function toggleTodo(id) {
         const newTodos = todos.map((t) => {
             if (t.id === id) {
-               
                 return { ...t, isCompleted: !t.isCompleted };
             }
-          
             return t;
         });
         setTodos(newTodos);
+        localStorage.setItem("todos", JSON.stringify(newTodos));
     }
     return (
 
